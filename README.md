@@ -1,4 +1,3 @@
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,68 +8,68 @@
             font-family: Arial, sans-serif;
             background-color: black;
             color: white;
-            margin: 10px;
+            margin: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         h1 {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         .form-container {
             display: flex;
             width: 100%;
-            max-width: 300px; /* Уменьшили ширину для мобильных устройств */
-            margin-bottom: 10px;
+            max-width: 800px;
+            margin-bottom: 20px;
         }
         .form {
             flex: 1;
-            margin-right: 5px;
+            margin-right: 10px;
         }
         .input-field {
-            width: calc(100% - 10px);
-            padding: 5px;
-            font-size: 14px; /* Уменьшили размер шрифта */
-            margin-bottom: 5px;
+            width: calc(100% - 20px);
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
             border: 1px solid green;
-            border-radius: 3px;
+            border-radius: 5px;
             background-color: black;
             color: white;
         }
         .button {
-            width: calc(100% - 10px);
-            padding: 8px;
-            font-size: 14px; /* Уменьшили размер шрифта */
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 16px;
             background-color: green;
             color: white;
             border: none;
-            border-radius: 3px;
+            border-radius: 5px;
             cursor: pointer;
         }
         .result {
-            font-size: 16px; /* Уменьшили размер шрифта */
+            font-size: 20px;
             font-weight: bold;
             color: green;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
         .list-container {
             display: flex;
-            flex-direction: column; /* Изменили направление для мобильных устройств */
-            align-items: center;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
             width: 100%;
-            max-width: 300px; /* Уменьшили ширину для мобильных устройств */
+            max-width: 800px;
         }
         .transaction-list {
-            width: 100%;
+            flex: 1;
             list-style: none;
             padding: 0;
-            text-align: center;
-            margin-bottom: 10px;
+            text-align: left;
+            margin-right: 20px;
         }
         .transaction-item {
-            font-size: 14px; /* Уменьшили размер шрифта */
-            margin-bottom: 3px;
+            font-size: 16px;
+            margin-bottom: 5px;
             color: green;
             display: flex;
             justify-content: space-between;
@@ -79,23 +78,42 @@
             background-color: red;
             color: white;
             border: none;
-            padding: 3px;
-            margin-left: 5px;
+            padding: 5px;
+            margin-left: 10px;
             cursor: pointer;
         }
         .total-container {
-            width: 100%;
-            max-width: 300px; /* Уменьшили ширину для мобильных устройств */
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
+            width: 100%;
+            max-width: 800px;
         }
         .total {
-            font-size: 16px; /* Уменьшили размер шрифта */
+            flex: 1;
+            font-size: 18px;
             font-weight: bold;
             color: green;
             text-align: center;
             margin-bottom: 10px;
+        }
+        .category-form {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        .category-label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .category-input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid green;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
         }
     </style>
 </head>
@@ -104,15 +122,23 @@
     <div class="form-container">
         <div class="form">
             <label for="incomeInput">Доход: </label>
-            <input type="number" id="incomeInput" class="input-field" placeholder="Сумма" oninput="calculatePercentage('income')">
-            <button class="button" onclick="addTransaction('income')">Добавить</button>
+            <input type="number" id="incomeInput" class="input-field" placeholder="Введите сумму" oninput="calculatePercentage('income')">
+            <div class="category-form">
+                <label for="incomeCustomCategory" class="category-label">Введите свою категорию: </label>
+                <input type="text" id="incomeCustomCategory" class="category-input" placeholder="Например, Зарплата">
+            </div>
+            <button class="button" onclick="addTransaction('income')">Добавить Доход</button>
             <div class="result income-result">Доход в процентах: 0%</div>
         </div>
 
         <div class="form">
             <label for="expenseInput">Расход: </label>
-            <input type="number" id="expenseInput" class="input-field" placeholder="Сумма" oninput="calculatePercentage('expense')">
-            <button class="button" onclick="addTransaction('expense')">Добавить</button>
+            <input type="number" id="expenseInput" class="input-field" placeholder="Введите сумму" oninput="calculatePercentage('expense')">
+            <div class="category-form">
+                <label for="expenseCustomCategory" class="category-label">Введите свою категорию: </label>
+                <input type="text" id="expenseCustomCategory" class="category-input" placeholder="Например, Покупки">
+            </div>
+            <button class="button" onclick="addTransaction('expense')">Добавить Расход</button>
             <div class="result expense-result">Расход в процентах: 0%</div>
         </div>
     </div>
@@ -127,7 +153,58 @@
     </div>
 
     <script>
-        // Ваш JavaScript код остается без изменений
+        var transactions = {
+            income: [],
+            expense: []
+        };
+
+        function calculatePercentage(type) {
+            var inputValue = parseFloat(document.getElementById(type + 'Input').value) || 0;
+            var resultElement = document.querySelector('.' + type + '-result');
+            var total = type === 'income' ? calculateTotal('income') : calculateTotal('expense');
+            var percentage = (inputValue / total) * 100;
+            resultElement.textContent = type === 'income' ? 'Доход в процентах: ' + percentage.toFixed(2) + '%' : 'Расход в процентах: ' + percentage.toFixed(2) + '%';
+        }
+
+        function calculateTotal(type) {
+            return transactions[type].reduce((total, transaction) => total + transaction.amount, 0);
+        }
+
+        function addTransaction(type) {
+            var inputValue = parseFloat(document.getElementById(type + 'Input').value) || 0;
+            var category = document.getElementById(type + 'CustomCategory').value;
+            if (inputValue > 0 && category) {
+                transactions[type].push({ amount: inputValue, category: category });
+                updateList(type + 'List', transactions[type], 'transaction-item', type);
+                updateTotal('total', calculateTotal('income') - calculateTotal('expense'));
+                calculatePercentage(type);
+            } else {
+                alert("Введите корректную сумму и категорию.");
+            }
+        }
+
+        function removeTransaction(index, type) {
+            transactions[type].splice(index, 1);
+            updateList(type + 'List', transactions[type], 'transaction-item', type);
+            updateTotal('total', calculateTotal('income') - calculateTotal('expense'));
+            calculatePercentage(type);
+        }
+
+        function updateList(listId, transactions, itemClass, type) {
+            var transactionList = document.getElementById(listId);
+            transactionList.innerHTML = '';
+            transactions.forEach(function(transaction, index) {
+                var listItem = document.createElement('li');
+                listItem.className = itemClass;
+                listItem.innerHTML = `<span>${transaction.amount.toFixed(2)} KZT - ${transaction.category}</span><button onclick="removeTransaction(${index}, '${type}')">Удалить</button>`;
+                transactionList.appendChild(listItem);
+            });
+        }
+
+        function updateTotal(totalId, totalValue) {
+            var totalElement = document.getElementById(totalId);
+            totalElement.textContent = 'Баланс: ' + totalValue.toFixed(2) + ' KZT';
+        }
     </script>
 </body>
 </html>
