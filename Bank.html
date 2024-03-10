@@ -154,10 +154,21 @@
     </div>
 
     <script>
+        // При загрузке страницы проверяем, есть ли данные в localStorage
+        var storedTransactions = JSON.parse(localStorage.getItem('transactions')) || { income: [], expense: [] };
+
+        // Инициализируем transactions данными из localStorage
         var transactions = {
-            income: [],
-            expense: []
+            income: storedTransactions.income || [],
+            expense: storedTransactions.expense || []
         };
+
+        // Функция сохранения данных в localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        // Ваши функции остаются без изменений, но добавим сохранение в localStorage
 
         function calculatePercentage(type) {
             var inputValue = parseFloat(document.getElementById(type + 'Input').value) || 0;
@@ -179,6 +190,8 @@
                 updateList(type + 'List', transactions[type], 'transaction-item', type);
                 updateTotal('total', calculateTotal('income') - calculateTotal('expense'));
                 calculatePercentage(type);
+                // Сохраняем в localStorage после каждого изменения
+                saveToLocalStorage();
             } else {
                 alert("Введите корректную сумму и категорию.");
             }
@@ -189,6 +202,8 @@
             updateList(type + 'List', transactions[type], 'transaction-item', type);
             updateTotal('total', calculateTotal('income') - calculateTotal('expense'));
             calculatePercentage(type);
+            // Сохраняем в localStorage после каждого изменения
+            saveToLocalStorage();
         }
 
         function updateList(listId, transactions, itemClass, type) {
@@ -206,6 +221,11 @@
             var totalElement = document.getElementById(totalId);
             totalElement.textContent = 'Баланс: ' + totalValue.toFixed(2) + ' KZT';
         }
+
+        // При загрузке страницы обновляем список и общий баланс
+        updateList('incomeList', transactions.income, 'transaction-item', 'income');
+        updateList('expenseList', transactions.expense, 'transaction-item', 'expense');
+        updateTotal('total', calculateTotal('income') - calculateTotal('expense'));
     </script>
 </body>
 </html>
